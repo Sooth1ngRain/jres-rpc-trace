@@ -1,0 +1,3 @@
+Manifest-Version: 1.0
+Premain-Class: com.hundsun.jrescloud.agent.JRESCloudAgent
+Can-Redefine-Classes: true
