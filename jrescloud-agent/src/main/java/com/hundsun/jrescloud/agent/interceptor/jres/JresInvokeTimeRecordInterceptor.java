@@ -5,6 +5,7 @@ import com.alibaba.dubbo.rpc.Invoker;
 import com.alibaba.dubbo.rpc.Result;
 import com.alibaba.dubbo.rpc.RpcContext;
 import com.alibaba.fastjson.JSON;
+import com.hundsun.jrescloud.agent.JRESCloudAgent;
 import com.hundsun.jrescloud.rpc.api.IRpcContext;
 import net.bytebuddy.implementation.bind.annotation.AllArguments;
 import net.bytebuddy.implementation.bind.annotation.RuntimeType;
@@ -36,12 +37,7 @@ public class JresInvokeTimeRecordInterceptor {
 
     private static final Logger logger = LoggerFactory.getLogger(JresInvokeTimeRecordInterceptor.class);
 
-    private static String template = "======${threadName} ${traceId} ${functionId} ${requestId}  begin ===========\n" +
-            "${methodName} begin, record time ${beginTime}, execute time from last record ${cost} us\n" +
-            "arguments: ${arguments} " +
-            "${methodName} end, record time ${endTime}, execute time from last record ${cost} us\n" +
-            "======${threadName} ${traceId} ${functionId} end for ${costTime}us=========";
-
+    private static String template = JRESCloudAgent.AGENT_SETTINGS.getProperty("trace.layout");
 
     @RuntimeType
     public static Object intercept(@AllArguments Object[] args, @This Invoker invoker, @SuperCall Callable<Result> callable) throws Exception {
@@ -69,9 +65,9 @@ public class JresInvokeTimeRecordInterceptor {
         logParams.put("methodName", invocation.getMethodName());
         logParams.put("arguments", collectArguments(1000, invocation.getArguments()));
         logParams.put("beginTime", DateFormatUtils.format(new Date(), "yyyy-MM-dd HH:mm:ss"));
-
+        logParams.put("returnResult" , "");
+        logParams.put("exception" , "");
         try {
-            traceSW.suspend();
             functionSW.start();
             result = callable.call();
 
@@ -82,13 +78,13 @@ public class JresInvokeTimeRecordInterceptor {
             functionSW.stop();
             logParams.put("endTime", DateFormatUtils.format(new Date(), "yyyy-MM-dd HH:mm:ss"));
         }
-        traceSW.resume();
         if(result!=null){
             logParams.put("returnResult", collectArguments(1000, result.getValue()));
             if (result.hasException()) {
                 logParams.put("exception", collectArguments(1000, result.getException().getLocalizedMessage()));
             }
         }
+
 
         traceSW.stop();
         logParams.put("costTime", String.valueOf(functionSW.getNanoTime()));

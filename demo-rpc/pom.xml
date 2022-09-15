@@ -12,7 +12,6 @@
 		<module>demo-rpc-server</module>
 		<module>demo-rpc-api</module>
 		<module>demo-rpc-client</module>
-        <module>demo-rpc-server-zip</module>
 	</modules>
 	<dependencyManagement>
 		<dependencies>

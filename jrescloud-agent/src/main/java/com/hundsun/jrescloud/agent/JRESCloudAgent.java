@@ -20,7 +20,7 @@ import java.util.Properties;
 
 public class JRESCloudAgent {
 
-    private static Properties AGENT_SETTINGS;
+    public static Properties AGENT_SETTINGS;
     private static final String DEFAULT_CONFIG_FILE_NAME = "/config/agent.config";
 
     private static final Logger logger = LoggerFactory.getLogger(JresInvokeTimeRecordInterceptor.class);
